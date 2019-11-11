@@ -1,13 +1,14 @@
 "use strict";
 
-const web3Utils = require("web3-utils");
-const debug = require("debug")("meter:injector");
-const EthLib = require("eth-lib/lib");
-import { cry, Transaction } from "meter-devkit";
-import { Callback, EthTransaction } from "../types";
-import * as utils from "../utils";
+
+const debug = require('debug')('meter:injector')
+import { cry, Transaction } from 'meter-devkit'
+import { Callback, EthTransaction } from '../types'
+import * as utils from '../utils'
 
 const extendAccounts = function(web3: any): any {
+
+    const web3Utils = web3.utils
     // signTransaction supports both callback and promise style
     web3.eth.accounts.signTransaction = function signTransaction(
         ethTx: EthTransaction,
@@ -52,19 +53,15 @@ const extendAccounts = function(web3: any): any {
                 tx.data = "0x";
             }
             if (!tx.gas) {
+                const pubKey = cry.secp256k1.derivePublicKey(Buffer.from(utils.sanitizeHex(privateKey), 'hex'))
+                const from = '0x' + cry.publicKeyToAddress(pubKey).toString('hex')
                 const gas = await web3.eth.estimateGas({
-                    from: EthLib.account.fromPrivate(
-                        utils.toPrefixedHex(privateKey)
-                    ).address,
-                    to: tx.to ? tx.to : "",
+                    from,
+                    to: tx.to ? tx.to : '',
                     value: tx.value ? tx.value : 0,
-                    data: tx.data
-                });
-                if (gas) {
-                    tx.gas = gas;
-                } else {
-                    throw new Error("error getting gas");
-                }
+                    data: tx.data,
+                })
+                tx.gas = gas
             }
             if (!tx.nonce) {
                 tx.nonce = utils.newNonce();
@@ -126,58 +123,28 @@ const extendAccounts = function(web3: any): any {
         } else {
             return sign(ethTx);
         }
-    };
+    }
 
-    web3.eth.accounts.recoverTransaction = function recoverTransaction(
-        encodedRawTx: string
-    ) {
-        const values = EthLib.RLP.decode(encodedRawTx);
+    web3.eth.accounts.recoverTransaction = function recoverTransaction(encodedRawTx: string) {
+        const decoded = Transaction.decode(Buffer.from(utils.sanitizeHex(encodedRawTx), 'hex'))
+        return decoded.origin
+    }
 
-        const signingDataHex = EthLib.RLP.encode(values.slice(0, 9));
-        const singingHashBuffer = cry.blake2b256(
-            Buffer.from(utils.sanitizeHex(signingDataHex), "hex")
-        );
-        const signature = values[9];
+    web3.eth.accounts.hashMessage = function hashMessage(data: string | Buffer) {
+        const message = web3Utils.isHexStrict(data) ? web3Utils.hexToBytes(data) : data
+        const messageBuffer = Buffer.from(message)
+        const prefix = '\u0019Dfinlab Signed Message:\n' + message.length.toString()
+        const prefixBuffer = Buffer.from(prefix)
+        const prefixedMessage = Buffer.concat([prefixBuffer, messageBuffer])
 
-        const signatureBuffer = Buffer.from(
-            utils.sanitizeHex(signature),
-            "hex"
-        );
-        const pubKey = cry.secp256k1.recover(
-            singingHashBuffer,
-            signatureBuffer
-        );
-        const address = cry.publicKeyToAddress(pubKey);
+        return utils.toPrefixedHex(cry.blake2b256(prefixedMessage).toString('hex'))
+    }
 
-        return utils.toPrefixedHex(address.toString("hex"));
-    };
-
-    web3.eth.accounts.hashMessage = function hashMessage(
-        data: string | Buffer
-    ) {
-        const message = web3Utils.isHexStrict(data)
-            ? web3Utils.hexToBytes(data)
-            : data;
-        const messageBuffer = Buffer.from(message);
-
-        return utils.toPrefixedHex(
-            cry.blake2b256(messageBuffer).toString("hex")
-        );
-    };
-
-    web3.eth.accounts.sign = function sign(
-        data: string | Buffer,
-        privateKey: string
-    ) {
-        const hash = this.hashMessage(data);
-        const hashBuffer = Buffer.from(utils.sanitizeHex(hash), "hex");
-        const privateKeyBuffer = Buffer.from(
-            utils.sanitizeHex(privateKey),
-            "hex"
-        );
-        const signature = cry.secp256k1
-            .sign(hashBuffer, privateKeyBuffer)
-            .toString("hex");
+    web3.eth.accounts.sign = function sign(data: string | Buffer, privateKey: string) {
+        const hash = this.hashMessage(data)
+        const hashBuffer = Buffer.from(utils.sanitizeHex(hash), 'hex')
+        const privateKeyBuffer = Buffer.from(utils.sanitizeHex(privateKey), 'hex')
+        const signature = cry.secp256k1.sign(hashBuffer, privateKeyBuffer).toString('hex')
 
         return {
             message: data,
@@ -186,12 +153,7 @@ const extendAccounts = function(web3: any): any {
         };
     };
 
-    web3.eth.accounts.recover = function recover(
-        message: any,
-        signature: string,
-        preFixed: boolean
-    ) {
-        const args = [].slice.apply(arguments);
+    web3.eth.accounts.recover = function recover(message: any, signature: string, preFixed: boolean) {
 
         if (utils.isObject(message)) {
             return this.recover(message.messageHash, message.signature, true);

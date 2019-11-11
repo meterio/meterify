@@ -135,6 +135,7 @@ describe('extend:accounts', () => {
         // if reverted estimateGas will return null
         xhrUtility.setCachedResponse('/accounts/0xd3ae78222beadb038203be21ed5ce7c9b1bff602?revision=best', {
             reverted: true,
+            data: '0x08c379a00x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000f736f6d657468696e672077726f6e670000000000000000000000000000000000',
         })
         web3.eth.accounts.signTransaction({
             to: '0xd3ae78222beadb038203be21ed5ce7c9b1bff602',
@@ -149,7 +150,7 @@ describe('extend:accounts', () => {
             done(new Error('no error thrown'))
         }).catch((e) => {
             try {
-                expect(() => { throw e }).to.throw('error getting gas')
+                expect(() => { throw e }).to.throw('Returned error: Gas estimation failed with VM reverted: something wrong')
                 done()
             } catch (err) {
                 done(err)
@@ -227,25 +228,25 @@ describe('extend:accounts', () => {
 
     it('hash message', async () => {
         const message = 'test message'
-        expect(web3.eth.accounts.hashMessage(message)).to.be.equal('0xf1d201623965f4a21390705e83ba1fb2c33600a529bd2fab2373c2558bf4cb5e')
+        expect(web3.eth.accounts.hashMessage(message)).to.be.equal('0x6bb54cc20ea49203c24ece6c631f81f35cf947b136246dc0de006609d294b032')
     })
 
     it('hash message with hexadecimal string', async () => {
         const message = '0x74657374206d657373616765'
-        expect(web3.eth.accounts.hashMessage(message)).to.be.equal('0xf1d201623965f4a21390705e83ba1fb2c33600a529bd2fab2373c2558bf4cb5e')
+        expect(web3.eth.accounts.hashMessage(message)).to.be.equal('0x6bb54cc20ea49203c24ece6c631f81f35cf947b136246dc0de006609d294b032')
     })
 
     it('sign message', async () => {
         const message = 'test message'
         const ret = web3.eth.accounts.sign(message, '0xdce1443bd2ef0c2631adc1c67e5c93f13dc23a41c18b536effbbdcbcdb96fb65')
         expect(ret.message).to.be.equal('test message')
-        expect(ret.messageHash).to.be.equal('0xf1d201623965f4a21390705e83ba1fb2c33600a529bd2fab2373c2558bf4cb5e')
-        expect(ret.signature).to.be.equal('0xce639afc9733cbffe7a2dd87e096856e5a81fc5094c9292919eb04eb9a751b7747986f7351d562a64b9b9c9d7989eec344570e754b0461a34bb598c1ee262aef00')
+        expect(ret.messageHash).to.be.equal('0x6bb54cc20ea49203c24ece6c631f81f35cf947b136246dc0de006609d294b032')
+        expect(ret.signature).to.be.equal('0x9fd2e0f9b57405809fcb52887e62ac17abd2a94112ec272ee606589ea6da956b3cbfc7386e9e9383dced85f85386dcea401f82bba529f5a5452512985598388400')
     })
 
     it('recover with not-prefixed message', async () => {
         const message = 'test message'
-        const signature = '0xce639afc9733cbffe7a2dd87e096856e5a81fc5094c9292919eb04eb9a751b7747986f7351d562a64b9b9c9d7989eec344570e754b0461a34bb598c1ee262aef00'
+        const signature = '0x9fd2e0f9b57405809fcb52887e62ac17abd2a94112ec272ee606589ea6da956b3cbfc7386e9e9383dced85f85386dcea401f82bba529f5a5452512985598388400'
         expect(web3.eth.accounts.recover(message, signature)).to.be.equal('0x7567d83b7b8d80addcb281a71d54fc7b3364ffed')
     })
 
