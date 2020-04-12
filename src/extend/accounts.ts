@@ -2,7 +2,7 @@
 
 
 const debug = require('debug')('meter:injector')
-import { cry, Transaction } from 'meter-devkit'
+import { cry, Transaction } from '@meterio/devkit'
 import { Callback, EthTransaction } from '../types'
 import * as utils from '../utils'
 
