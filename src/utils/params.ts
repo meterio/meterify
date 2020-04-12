@@ -1,6 +1,6 @@
 'use strict'
 
-// params from meter source code and dfinlab foundation's suggestion
+// params from meter source code and meter foundation's suggestion
 const params = {
     defaultGasPriceCoef: 128,
     defaultExpiration: 720,

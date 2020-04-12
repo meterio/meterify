@@ -1,7 +1,7 @@
 {
   "name": "meterify",
-  "version": "1.4.2",
-  "description": "A web3 adaptor for Dfinlab Meter RESTful HTTP API.",
+  "version": "1.4.3",
+  "description": "A web3 adaptor for Meter RESTful HTTP API.",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
@@ -73,10 +73,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dfinlab/meterify.git"
+    "url": "git+https://github.com/meterio/meterify.git"
   },
   "keywords": [
-    "dfinlab",
     "meter",
     "web3",
     "blockchain",
@@ -84,7 +83,7 @@
     "contract"
   ],
   "bugs": {
-    "url": "https://github.com/dfinlab/meterify/issues"
+    "url": "https://github.com/meterio/meterify/issues"
   },
-  "homepage": "https://dfinlab.github.io/meterify"
+  "homepage": "https://meterio.github.io/meterify"
 }

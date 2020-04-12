@@ -1288,14 +1288,14 @@ contractInstance.getPastEvents(event[, options]).then(logs =>{
 
 ## **Links**
 
-### [**dfinlab meter**](https://github.com/dfinlab/meter)
+### [** meter**](https://www.meter.io)
 
 A general purpose blockchain highly compatible with Ethereum's ecosystem
 
-### [**meter Dev Kit**](https://github.com/dfinlab/meter-devkit.js)
+### [**meter Dev Kit**](https://github.com/meterio/devkit)
 
-Typescript library to aid DApp development on dfinlab meter
+Typescript library to aid DApp development on meter
 
-### [**Web3 Gear**](https://github.com/dfinlab/web3-gear)
+### [**Web3 Gear**](https://github.com/meterio/web3-gear)
 
 Proxy meter's RESTful API to Eth JSON-RPC, to support Remix, Truffle and more

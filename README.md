@@ -104,11 +104,11 @@ The APIs that follows the mechanism are:
 
 ## Play with multi-clause
 
-1. [meter-devkit.js](https://github.com/dfinlab/meter-devkit.js) supports multi-clause and sign transaction
+1. [@meterio/devkit](https://github.com/meterio/devkit) supports multi-clause and sign transaction
 
 ## Which Stack Should I Choose Regarding Connex,Meterify And Web3-Gear
 
-- [Connex](https://github.com/dfinlab/meter-connex): The standard interface to connect Dfinlab apps with Dfinlab blockchain and user.
+- [Connex](https://github.com/meterio/flex): The standard interface to connect Dapps with Meter blockchain and user.
 
 If you are writing some application or scripts executing in `Node.js` or `Browser` environment, you should use `Meterify`.
 

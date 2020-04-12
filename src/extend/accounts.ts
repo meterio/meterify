@@ -133,7 +133,7 @@ const extendAccounts = function(web3: any): any {
     web3.eth.accounts.hashMessage = function hashMessage(data: string | Buffer) {
         const message = web3Utils.isHexStrict(data) ? web3Utils.hexToBytes(data) : data
         const messageBuffer = Buffer.from(message)
-        const prefix = '\u0019Dfinlab Signed Message:\n' + message.length.toString()
+        const prefix = '\u0019Meter Signed Message:\n' + message.length.toString()
         const prefixBuffer = Buffer.from(prefix)
         const prefixedMessage = Buffer.concat([prefixBuffer, messageBuffer])
 
