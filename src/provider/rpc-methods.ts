@@ -1,6 +1,7 @@
 'use strict'
 
 import * as utils from '../utils'
+import { Transaction } from '@meterio/devkit'
 import { JSONRPC, RPCResult } from './json-rpc'
 import { HTTP, SimpleResponse } from './simple-http'
 const debug = require('debug')('meter:http-provider:rpc')
@@ -167,17 +168,17 @@ RPCMethodMap.set('eth_call', async function(rpc: JSONRPC, host: string, timeout:
 })
 
 RPCMethodMap.set('eth_estimateGas', async function(rpc: JSONRPC, host: string, timeout: number) {
-    let extraURI = ''
-    if (rpc.params[0].to) {
-        extraURI = '/' + rpc.params[0].to
-    }
-    extraURI += '?revision=' + utils.fromETHBlockNumberOrHash(rpc.params[1])
-    const URL = host + '/accounts' + extraURI
+    const extraURI = '?revision=' + utils.fromETHBlockNumberOrHash(rpc.params[1])
+    const URL = host + '/accounts/*' + extraURI
 
     const reqBody: any = {
-        value: rpc.params[0].value || '',
-        data: rpc.params[0].data || '0x',
-        gasPrice: rpc.params[0].gasPrice || '',
+        clauses: [{
+            to: rpc.params[0].to || null,
+            value: rpc.params[0].value || '',
+            data: rpc.params[0].data || '0x',
+            token: rpc.params[0].token || 0,
+        }],
+        gasPrice: rpc.params[0].gasPrice || undefined,
     }
     if (rpc.params[0].gas) {
         if (typeof rpc.params[0].gas === 'number') {
@@ -192,24 +193,22 @@ RPCMethodMap.set('eth_estimateGas', async function(rpc: JSONRPC, host: string, t
 
     const res = await HTTP.post(URL, reqBody, timeout).then(HTTPPostProcessor)
 
-    if (!res) {
+    if (!res || res.length === 0) {
         return rpc.makeResult(null)
     } else {
-        if (res.reverted || res.vmError) {
-            if (res.data && (res.data as string).startsWith('0x08c379a0')) {
-                return rpc.makeError('Gas estimation failed with VM reverted: ' + require('web3-eth-abi').decodeParameter('string', res.data.replace(/^0x08c379a0/i, '')))
+        const result = res[0]
+        if (result.reverted || result.vmError) {
+            if (result.data && (result.data as string).startsWith('0x08c379a0')) {
+                return rpc.makeError('Gas estimation failed with VM reverted: ' + require('web3-eth-abi').decodeParameter('string', result.data.replace(/^0x08c379a0/i, '')))
             } else {
-                return rpc.makeError('Gas estimation failed' + (res.vmError ? ': ' + res.vmError : ''))
+                return rpc.makeError('Gas estimation failed' + (result.vmError ? ': ' + result.vmError : ''))
             }
         } else {
-            debug('VM gas:', res.gasUsed)
+            debug('VM gas:', result.gasUsed)
             // ignore the overflow since block gas limit is uint64 and JavaScript's max number is 2^53
-            const intrinsicGas = utils.calcIntrinsicGas(Object.assign(reqBody, { to: rpc.params[0].to }))
-            if (res.gasUsed === 0 && (reqBody.data === '0x')) {
-                return rpc.makeResult(intrinsicGas)
-            } else {
-                return rpc.makeResult(Math.floor(res.gasUsed * 1.2) + intrinsicGas) // increase vm gas with 20% for safe since it's estimated from current block state, final state for the transaction is not determined for now
-            }
+            const intrinsicGas = Transaction.intrinsicGas(reqBody.clauses)
+            // increase vm gas by 15000 for safe since it's estimated from current block state, final state for the transaction is not determined for now
+            return rpc.makeResult(intrinsicGas + (result.gasUsed ? (result.gasUsed + 15000) : 0))
         }
     }
 })

@@ -54,12 +54,13 @@ const extendAccounts = function(web3: any): any {
             }
             if (!tx.gas) {
                 const pubKey = cry.secp256k1.derivePublicKey(Buffer.from(utils.sanitizeHex(privateKey), 'hex'))
-                const from = '0x' + cry.publicKeyToAddress(pubKey).toString('hex')
+                const from = '0x' + cry.publicKeyToAddress(pubKey).toString('hex');
                 const gas = await web3.eth.estimateGas({
                     from,
                     to: tx.to ? tx.to : '',
                     value: tx.value ? tx.value : 0,
                     data: tx.data,
+                    token,
                 })
                 tx.gas = gas
             }
