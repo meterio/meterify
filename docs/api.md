@@ -36,9 +36,9 @@ web3Instance.eth.getBalance(address[,blockNumberOrHash]).then(result => {
 
 `Promise` returns `String`: The balance of account in `wei`(number in string)
 
-### Get account energy(VTHO) balance
+### Get account balance
 
-Query the energy(VTHO) balance of an address
+Query the balance of an address
 
 ``` javascript
 web3Instance.eth.getEnergy(address[,blockNumberOrHash]).then(result => {
@@ -49,7 +49,7 @@ web3Instance.eth.getEnergy(address[,blockNumberOrHash]).then(result => {
 
 **Parameters**
 
-- `address` - `String`: The address to get the VTHO balance of.
+- `address` - `String`: The address to get the MTR balance of.
 - `blockNumberOrHash` - `Number | String`(optional):  If you pass this parameter it will not use the default block set with `latest`
 
 `BlockNumberOrHash` parameters can be one of the following:
@@ -62,7 +62,7 @@ web3Instance.eth.getEnergy(address[,blockNumberOrHash]).then(result => {
 	
 **Returns**
 
-`Promise` returns `String`: The balance of VTHO in `wei`(number in string)
+`Promise` returns `String`: The balance of MTR in `wei`(number in string)
 
 ### Get chain tag
 
