@@ -2,6 +2,9 @@
 
 A web3 adaptor for Meter [Meter] RESTful API.
 
+> **⚠ WARNING: Specific version of web3.js required.**  
+> This implementation is supposed to work with web3.js version lower than **v1.2.4**. Please be aware it does **NOT** work well with web3.js v1.3.0, there are some known issues that we are still figuring out.
+
 ## Table of contents
 
 - [Install](#install)
