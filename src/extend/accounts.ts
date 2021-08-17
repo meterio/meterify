@@ -38,8 +38,14 @@ const extendAccounts = function(web3: any): any {
             // take the token type if there is 
             let token = 0;
             if (tx.data && tx.data.length >= 10) { 
+                if (tx.data.startsWith('0x')){
+                    // remove 0x prefix
+                    tx.data = tx.data.substring(2, tx.data.length);
+                }
                 let tokenStr = tx.data.substring(0, 8);
                 if (tx.to != null && tokenStr === "00000000") {
+                    // if tx.data startswith 00000000, this is a special prefix for token data
+                    // the 5th byte will indicate whether it's a MTR (0) clause or MTRG (1) clause
                     token = Number(tx.data.substring(8,10)) > 0 ? 1 : 0;
                     tx.data = tx.data.substring(10,tx.data.length)
                 }
